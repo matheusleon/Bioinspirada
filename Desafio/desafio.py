@@ -1,8 +1,11 @@
 import random
 
 class Individual:
-    def __init__(self, n = 2):
-        self.x = list(random.randrange(-100, 100) for i in range(n))
+    def __init__(self, x = None, n = 2):
+        if x is None:
+            self.x = list(random.randrange(-100, 100) for i in range(n))
+        else:
+            self.x = x
 
     def fitness(self):
         value = 0
@@ -19,23 +22,32 @@ class Population:
     def __init__(self, size):
         self.population = list(Individual() for i in range(size))
 
-    def printPopulation(self):
+    def print_population(self):
         print('Population:')
         for i in range(len(self.population)):
             print(self.population[i].x, 'fitness =', self.population[i].fitness())
 
-    def parentSelection(self):
+    def parent_selection(self):
         self.population.sort(reverse=True)
-        self.printPopulation()
-        return [(self.population[0], self.population[1]), (self.population[2], self.population[3])]
+        return [self.population[0], self.population[1]]
 
-    #def survivalSelection(self, offspring):
+    def crossover(self, parents):
+        x1 = [parents[0][0], parents[1][1]]
+        x2 = [parents[1][0], parents[0][1]]
+        return (Individual(x=x1), Individual(x=x2))
 
+    def survival_selection(self, offspring):
+        population_size = len(self.population)
+        for x in offspring:
+            self.population.append(x)
+        
+        # select the fittest individuals
+        self.population.sort(reverse=True)
+        self.population = self.population[:population_size]
 
 
 def main():
-    p = Population(5)
-    
+    population = Population(5)
 
 
 if __name__ == "__main__":
