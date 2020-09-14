@@ -2,8 +2,10 @@ import random
 
 class Individual:
     def __init__(self, x = None, n = 2):
+        self.left_range = -100
+        self.right_range = 100
         if x is None:
-            self.x = list(random.randrange(-100, 100) for i in range(n))
+            self.x = list(random.randrange(self.left_range, self.right_range) for i in range(n))
         else:
             self.x = x
 
@@ -16,7 +18,12 @@ class Individual:
     def __lt__(self, other):
         return self.fitness() < other.fitness()
 
-    #def mutation(self):
+    def mutation(self):
+        for i in range(len(self.x)):
+            prob = random.uniform(0, 1)
+            if prob <= 0.8:
+                self.x[i] = random.randrange(self.left_range, self.right_range)
+
 
 class Population:
     def __init__(self, size):
