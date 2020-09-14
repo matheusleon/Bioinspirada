@@ -1,9 +1,10 @@
 import random
+import numpy as np
 
 class Individual:
     def __init__(self, x = None, n = 2):
-        self.left_range = -100
-        self.right_range = 100
+        self.left_range = -2048
+        self.right_range = 2048
         if x is None:
             self.x = list(random.randrange(self.left_range, self.right_range) for i in range(n))
         else:
@@ -13,7 +14,7 @@ class Individual:
         value = 0
         for i in range(len(self.x) - 1):
             value = value + 100*(self.x[i + 1] - self.x[i]**2)**2 + (self.x[i] - 1)**2
-        return value
+        return -value
 
     def __lt__(self, other):
         return self.fitness() < other.fitness()
@@ -55,32 +56,63 @@ class Population:
         self.population.sort(reverse=True)
         self.population = self.population[:population_size]
 
+    def population_fitness(self):
+        fitness = [x.fitness() for x in self.population]
+        return np.mean(fitness)
+
     def get_fittest_individual(self):
         self.population.sort(reverse=True)
         return self.population[0]
 
 
+
+def f(x):
+    value = 0
+    for i in range(len(x) - 1):
+        value = value + 100*(x[i + 1] - x[i]**2)**2 + (x[i] - 1)**2
+    return value
+
+def brute_force():
+    minimum = (1e100, (-1, -1))
+    for i in range(-2048, 2049):
+        for j in range(-2048, 2049):
+            curr = [i, j]
+            minimum = min(minimum, (f(curr), (i, j)))
+
+    return minimum
+
 def main():
-    num_generation = 5
-    population = Population(5)
-    population.print_population()
-    for i in range(num_generation):
-        print('\nGENERATION #', i)
+    #print(brute_force())
+    # best solution: (0, (1, 1))
+
+    num_generation = 100000
+    population = Population(10)
+    #population.print_population()
+    
+    n_generation = 0
+    #for i in range(num_generation):
+    while population.get_fittest_individual().fitness() != 0:
+        n_generation += 1
+        #print('\nn_generation =', n_generation)
+        #print('fittest =', population.get_fittest_individual().x, population.get_fittest_individual().fitness())
+        #print('population fitness mean =', population.population_fitness())
+
         # select the 2 fittest individuals 
         parents = population.parent_selection()
-        print('\nParents\n', parents[0].x, parents[1].x)
+        #print('\nParents\n', parents[0].x, parents[1].x)
 
         offspring_crossover = population.crossover(parents)
-        print('\nOffpring Crossover\n', offspring_crossover[0].x, offspring_crossover[1].x)
+        #print('\nOffpring Crossover\n', offspring_crossover[0].x, offspring_crossover[1].x)
 
         offspring_mutation = [x.mutation() for x in offspring_crossover]
-        print('\nOffpring Mutation\n', offspring_mutation[0].x, offspring_mutation[1].x)
+        #print('\nOffpring Mutation\n', offspring_mutation[0].x, offspring_mutation[1].x)
 
         population.survival_selection(offspring_mutation)
 
     ans = population.get_fittest_individual()
-    print(ans.x)
-    print(ans.fitness())
+    print('n_generation =', n_generation)
+    print('best individual =', ans.x)
+    print('minimum value =', -ans.fitness())
 
 
 if __name__ == "__main__":
