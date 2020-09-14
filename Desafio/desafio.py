@@ -23,6 +23,7 @@ class Individual:
             prob = random.uniform(0, 1)
             if prob <= 0.8:
                 self.x[i] = random.randrange(self.left_range, self.right_range)
+        return self
 
 
 class Population:
@@ -39,8 +40,10 @@ class Population:
         return [self.population[0], self.population[1]]
 
     def crossover(self, parents):
-        x1 = [parents[0][0], parents[1][1]]
-        x2 = [parents[1][0], parents[0][1]]
+        parent1 = parents[0].x
+        parent2 = parents[1].x
+        x1 = [parent1[0], parent2[1]]
+        x2 = [parent2[0], parent1[1]]
         return (Individual(x=x1), Individual(x=x2))
 
     def survival_selection(self, offspring):
@@ -52,9 +55,32 @@ class Population:
         self.population.sort(reverse=True)
         self.population = self.population[:population_size]
 
+    def get_fittest_individual(self):
+        self.population.sort(reverse=True)
+        return self.population[0]
+
 
 def main():
+    num_generation = 5
     population = Population(5)
+    population.print_population()
+    for i in range(num_generation):
+        print('\nGENERATION #', i)
+        # select the 2 fittest individuals 
+        parents = population.parent_selection()
+        print('\nParents\n', parents[0].x, parents[1].x)
+
+        offspring_crossover = population.crossover(parents)
+        print('\nOffpring Crossover\n', offspring_crossover[0].x, offspring_crossover[1].x)
+
+        offspring_mutation = [x.mutation() for x in offspring_crossover]
+        print('\nOffpring Mutation\n', offspring_mutation[0].x, offspring_mutation[1].x)
+
+        population.survival_selection(offspring_mutation)
+
+    ans = population.get_fittest_individual()
+    print(ans.x)
+    print(ans.fitness())
 
 
 if __name__ == "__main__":
