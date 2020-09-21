@@ -43,8 +43,13 @@ class Population:
     def crossover(self, parents):
         parent1 = parents[0].x
         parent2 = parents[1].x
-        x1 = [parent1[0], parent2[1]]
-        x2 = [parent2[0], parent1[1]]
+        prob = random.uniform(0, 1)
+        if prob <= 0.5:
+            x1 = [parent1[0], parent2[1]]
+            x2 = [parent2[0], parent1[1]]
+        else:
+            x1 = parent1
+            x2 = parent2
         return (Individual(x=x1), Individual(x=x2))
 
     def survival_selection(self, offspring):
