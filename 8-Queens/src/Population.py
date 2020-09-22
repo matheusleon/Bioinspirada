@@ -1,7 +1,7 @@
 import random
 import numpy as np
-from src.Individual import Individual
-from src.helper import translate_to_perm, crossover
+from Individual import Individual
+from helper import translate_to_perm, crossover
 
 class Population:
     def __init__(self, size):
