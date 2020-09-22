@@ -14,7 +14,9 @@ class Population:
 
     # TODO: Melhor de 2 de 5 escolhidos aleatoriamente
     def parent_selection(self):
-        return self
+        random_parents = random.sample(self.population, 5)
+        random_parents.sort(reverse=True)
+        return [random_parents[0], random_parents[1]]
 
     # TODO: Recombinação: “cut-and-crossfill” crossover
 
@@ -35,7 +37,7 @@ class Population:
         self.population.sort(reverse=True)
         return self.population[0]
 
-    def train(n_iter):
+    def train(self, n_iter):
         n_generation = 0
         population = self.population
         while population.get_fittest_individual().fitness() != 0 and n_generation < n_iter:

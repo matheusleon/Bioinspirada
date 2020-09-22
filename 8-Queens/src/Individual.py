@@ -19,7 +19,7 @@ class Individual:
                     dy = abs(y1 - y2)
                     if (x1 == x2 or y1 == y2 or dx == dy):
                         fitness_val += 1
-        return fitness_val
+        return -fitness_val
 
     def __lt__(self, other):
         return self.fitness() < other.fitness()
