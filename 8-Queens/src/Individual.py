@@ -27,4 +27,9 @@ class Individual:
     # TODO: troca de genes
     def mutation(self):
         mutation_prob = 0.4
+        prob = random.uniform(0, 1)
+        if prob <= mutation_prob:
+            perm = translate_to_perm(self.x)
+            random.shuffle(perm)
+            self.x = translate_to_bin(perm)
         return self
