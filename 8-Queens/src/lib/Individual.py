@@ -1,14 +1,16 @@
 import random
 import numpy as np
-from helper import translate_to_bin
-from helper import translate_to_perm
+from lib.helper import translate_to_bin, translate_to_perm
 
 class Individual:
     def __init__(self, x = None):
-        pop_sample = [0, 1, 2, 3, 4, 5, 6, 7]
-        random.shuffle(pop_sample)
-        self.x = translate_to_bin(pop_sample)
-
+        if x is None:
+            pop_sample = [0, 1, 2, 3, 4, 5, 6, 7]
+            random.shuffle(pop_sample)
+            self.x = translate_to_bin(pop_sample)
+        else:
+            self.x = translate_to_bin(x)
+            
     def fitness(self):
         perm = translate_to_perm(self.x)
         fitness_val = 0

@@ -13,7 +13,3 @@ def translate_to_perm(bin_gene):
         cur_gene = bin_gene[i:i+3]
         res.append(int(cur_gene, 2))
     return res
-
-#implement cut and crossfill with p1 and p2
-def crossover(p1, p2):
-    return [p1, p2]
