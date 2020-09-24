@@ -5,6 +5,7 @@ from lib.helper import translate_to_perm
 
 class Population:
     def __init__(self, size):
+        self.n = size
         self.population = list(Individual() for i in range(size))
 
     def print_population(self):
@@ -48,9 +49,8 @@ class Population:
 
     # select the fittest individuals
     def survival_selection(self):
-        population_size = len(self.population)   
         self.population.sort(reverse=True)
-        self.population = self.population[:population_size]
+        self.population = self.population[:self.n]
 
     def population_fitness_analysis(self):
         fitness = [x.fitness() for x in self.population]
