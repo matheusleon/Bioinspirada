@@ -27,11 +27,18 @@ class Individual:
         return self.fitness() < other.fitness()
 
     # TODO: troca de genes
-    def mutation(self):
+    def mutation(self, method):
         mutation_prob = 0.4
         prob = random.uniform(0, 1)
         if prob <= mutation_prob:
-            perm = translate_to_perm(self.x)
-            random.shuffle(perm)
-            self.x = translate_to_bin(perm)
+            if method == 'shuffle':
+                perm = translate_to_perm(self.x)
+                random.shuffle(perm)
+                self.x = translate_to_bin(perm)
+            elif method == 'swap':
+                perm = [0, 1, 2, 3, 4, 5, 6, 7]
+                change = random.sample(perm, 2)
+                pop = translate_to_perm(self.x)
+                pop[change[0]], pop[change[1]] = pop[change[1]], pop[change[0]]
+                self.x = translate_to_bin(pop)
         return self

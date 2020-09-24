@@ -40,7 +40,11 @@ class Population:
                 son2.append(perm1[pos])
             pos = (pos + 1) % len(perm1)
 
-        return [Individual(son1), Individual(son2)]
+        r = random.uniform(0, 1)
+        if r <= 0.9:
+            return [Individual(son1), Individual(son2)]
+        else:
+            return [p1, p2]
 
     # select the fittest individuals
     def survival_selection(self):
@@ -48,16 +52,17 @@ class Population:
         self.population.sort(reverse=True)
         self.population = self.population[:population_size]
 
-    def population_fitness(self):
+    def population_fitness_analysis(self):
         fitness = [x.fitness() for x in self.population]
-        return np.mean(fitness)
+        return (np.mean(fitness), np.std(fitness), np.min(fitness), np.max(fitness))
 
     def get_fittest_individual(self):
         self.population.sort(reverse=True)
         return self.population[0]
 
-    def train(self, n_iter):
+    def evolve(self, n_iter, verbose = False):
         n_generation = 0
+        ans_mean, ans_std, ans_min, ans_max = [], [], [], []
         while self.get_fittest_individual().fitness() != 0 and n_generation < n_iter:
             #self.print_population()
 
@@ -70,7 +75,7 @@ class Population:
             offspring_crossover = self.crossover(parents[0], parents[1])
 
             #possibly mutate children
-            offspring_mutation = [x.mutation() for x in offspring_crossover]
+            offspring_mutation = [x.mutation(method = 'swap') for x in offspring_crossover]
             
             #add children to the population
             self.population.extend(offspring_mutation)
@@ -80,6 +85,16 @@ class Population:
             #select new generation
             self.survival_selection()
 
-            print('Generation number {}: Best individual has fitness {}. Mean fitness is {}.'.format(n_generation, self.get_fittest_individual().fitness(), self.population_fitness()))
+            mean, std, min_val, max_val = self.population_fitness_analysis()
 
-        return self.get_fittest_individual().fitness()
+            ans_mean.append(mean)
+            ans_std.append(std)
+            ans_min.append(min_val)
+            ans_max.append(max_val)
+
+            if verbose:
+                print('----------------')
+                print('Generation number {}:\nBest individual has fitness {}.\nWorst individual has fitness {}.\nMean fitness is {}.\nStd is {}.'.format(n_generation, max_val, min_val, mean, std))
+                print('----------------')
+
+        return {"n_generations" : n_generation, "mean" : ans_mean, "std" : ans_std, "min" : ans_min, "max" : ans_max}
