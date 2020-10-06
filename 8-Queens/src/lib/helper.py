@@ -1,3 +1,6 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
 def translate_to_bin(person):
     res = ""
     for gene in person:
@@ -13,3 +16,12 @@ def translate_to_perm(bin_gene):
         cur_gene = bin_gene[i:i+3]
         res.append(int(cur_gene, 2))
     return res
+    
+def plot_curve(y, name, title):
+    plt.plot(y, 'r')
+    plt.xlabel('Generation number')
+    plt.ylabel(name)
+    plt.title(title)
+    plt.legend()
+    plt.axis([0, len(y), np.min(y), np.max(y)])
+    plt.show()

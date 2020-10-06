@@ -41,4 +41,12 @@ class Individual:
                 pop = translate_to_perm(self.x)
                 pop[change[0]], pop[change[1]] = pop[change[1]], pop[change[0]]
                 self.x = translate_to_bin(pop)
+            elif method == 'shuffle_subarray':
+                perm_or = [0, 1, 2, 3, 4, 5, 6, 7]
+                change = random.sample(perm_or, 2)
+                if change[0] > change[1]:
+                  swap(change[0], change[1])
+                cur_perm = translate_to_perm(self.x)
+                cur_perm[change[0] : change[1]] = random.shuffle(cur_perm[change[0] : change[1]])
+                self.x = translate_to_bin(cur_perm)
         return self

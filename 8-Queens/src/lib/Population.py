@@ -3,6 +3,7 @@ import numpy as np
 from lib.Individual import Individual
 from lib.helper import translate_to_perm
 
+
 class Population:
     def __init__(self, size):
         self.n = size
@@ -14,10 +15,23 @@ class Population:
             print(person.x, translate_to_perm(person.x))
 
     # TODO: Melhor de 2 de 5 escolhidos aleatoriamente
-    def parent_selection(self):
-        random_parents = random.sample(self.population, 5)
-        random_parents.sort(reverse=True)
-        return [random_parents[0], random_parents[1]]
+    
+    def get_roullete(self):
+        mn = min([x.fitness() for x in self.population]) - 1
+        fitness_sum = sum([x.fitness() - mn for x in self.population])
+        rand_id = random.randint(1, fitness_sum)
+        for i in range(self.n):
+            fitness_sum -= self.population[i].fitness() - mn
+            if fitness_sum <= 0:
+                return self.population[i]
+      
+    def parent_selection(self, method):
+        if method == 'random':
+            random_parents = random.sample(self.population, 5	)
+            random_parents.sort(reverse=True)
+            return [random_parents[0], random_parents[1]]
+        elif method == 'roulette':
+            return [self.get_roullete(), self.get_roullete()]
 
     # TODO: Recombinação: “cut-and-crossfill” crossover
     #implement cut and crossfill with p1 and p2
@@ -60,16 +74,16 @@ class Population:
         self.population.sort(reverse=True)
         return self.population[0]
 
-    def evolve(self, n_iter, verbose = False):
-        n_generation = 0
-        ans_mean, ans_std, ans_min, ans_max = [], [], [], []
-        while self.get_fittest_individual().fitness() != 0 and n_generation < n_iter:
+    def evolve(self, n_iter, recombination_method = 'crossover', mutation_method = 'swap', parent_selection_method = 'random', survival_selection_method = 'worst', verbose = False):
+        n_iteration = 0
+        ans_mean, ans_std, ans_min, ans_max, individuals_converged = [], [], [], [], 0
+        while self.get_fittest_individual().fitness() != 0 and n_iteration < n_iter:
             #self.print_population()
 
-            n_generation += 1
+            n_iteration += 1
 
             # select the 2 fittest individuals 
-            parents = self.parent_selection()
+            parents = self.parent_selection(parent_selection_method)
 
             #create children
             offspring_crossover = self.crossover(parents[0], parents[1])
@@ -94,7 +108,9 @@ class Population:
 
             if verbose:
                 print('----------------')
-                print('Generation number {}:\nBest individual has fitness {}.\nWorst individual has fitness {}.\nMean fitness is {}.\nStd is {}.'.format(n_generation, max_val, min_val, mean, std))
+                print('Generation number {}:\nBest individual has fitness {}.\nWorst individual has fitness {}.\nMean fitness is {}.\nStd is {}.'.format(n_iteration, max_val, min_val, mean, std))
                 print('----------------')
+                
+        individuals_converged = sum([x.fitness() == 0 for x in self.population])
 
-        return {"n_generations" : n_generation, "mean" : ans_mean, "std" : ans_std, "min" : ans_min, "max" : ans_max}
+        return {"n_iterations" : n_iteration, "number_of_individuals_who_converged": individuals_converged, "mean" : ans_mean, "std" : ans_std, "min" : ans_min, "max" : ans_max}
