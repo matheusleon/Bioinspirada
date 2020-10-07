@@ -89,7 +89,7 @@ class Population:
             offspring_crossover = self.crossover(parents[0], parents[1])
 
             #possibly mutate children
-            offspring_mutation = [x.mutation(method = 'swap') for x in offspring_crossover]
+            offspring_mutation = [x.mutation(method = mutation_method) for x in offspring_crossover]
             
             #add children to the population
             self.population.extend(offspring_mutation)
