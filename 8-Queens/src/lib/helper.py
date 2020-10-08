@@ -17,7 +17,7 @@ def translate_to_perm(bin_gene):
         res.append(int(cur_gene, 2))
     return res
     
-def plot_one_curve(y, name, title):
+def plot_one_curve(y, name, title, figname):
     #plt.clf()
     plt.plot(y, 'r')
     plt.xlabel('Iteration number')
@@ -25,9 +25,10 @@ def plot_one_curve(y, name, title):
     plt.title(title)
     plt.legend()
     plt.axis([0, len(y), np.min(y) - 1, np.max(y) + 1])
-    plt.show()
+    plt.savefig(figname)
+    #plt.close()
     
-def plot_all_curves(all_y, name, title):
+def plot_all_curves(all_y, name, title, figname):
     #plt.clf()
     for y in all_y:
         plt.plot(y, 'r')
@@ -36,10 +37,10 @@ def plot_all_curves(all_y, name, title):
     plt.title(title)
     plt.legend()
     plt.axis([0, len(y), np.min(y) - 1, np.max(y) + 1])
-    plt.show()
-    plt.clf()
+    plt.savefig(figname)
+    #plt.close()
     
-def bar_graph(y, name, title):
+def bar_graph(y, name, title, figname):
     #plt.clf()
     fig, ax = plt.subplots()
     arr = range(len(y))
@@ -57,5 +58,5 @@ def bar_graph(y, name, title):
         if (v > 0):
             height = rect.get_height()
             plt.text(rect.get_x() + rect.get_width() / 2, height, round(v, 3), ha='center', va='bottom')
-    plt.show()
-    plt.clf()
+    plt.savefig(figname)
+    #plt.close()

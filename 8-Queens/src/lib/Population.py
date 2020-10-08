@@ -21,7 +21,7 @@ class Population:
     def get_roullete(self):
         fitness_sum = sum([x.fitness() for x in self.population])
         rand_id = random.uniform(0, fitness_sum)
-        for i in range(len(self.population)):
+        for i in range(self.params['population_size']):
             fitness_sum -= self.population[i].fitness()
             if fitness_sum <= 1e-5:
                 return (i, self.population[i])
@@ -29,12 +29,10 @@ class Population:
     # TODO: Melhor de 2 de 5 escolhidos aleatoriamente
     def parent_selection(self):
         if self.params['parent_selection'] == 'Tournament Selection':
-            all = []
-            for x in enumerate(self.population):
-                all.append(x)
+            all = list(zip(self.population, range(self.params['population_size'])))
             random_parents = random.sample(all, 5)
             random_parents.sort(reverse=True)
-            return [random_parents[0][1], random_parents[1][1], random_parents[0][0], random_parents[1][0]]
+            return [random_parents[0][0], random_parents[1][0], random_parents[0][1], random_parents[1][1]]
         elif self.params['parent_selection'] == 'Roulette':
             first = self.get_roullete()
             second = self.get_roullete()
@@ -118,7 +116,8 @@ class Population:
 
     def population_fitness_analysis(self):
         fitness = [x.fitness() for x in self.population]
-        return (np.mean(fitness), np.std(fitness), np.min(fitness), np.max(fitness))
+        # (np.mean(fitness), np.std(fitness), np.min(fitness), np.max(fitness))
+        return np.mean(fitness)
 
     def get_fittest_individual(self):
         self.population.sort(reverse=True)
@@ -128,14 +127,24 @@ class Population:
         params = self.params
         n_generation = 0
         n_iter = 1000
-        ans_mean, ans_std, ans_min, ans_max = [], [], [], []
-        mean, std, min_val, max_val = self.population_fitness_analysis()
+        #ans_mean, ans_std, ans_min, ans_max = [], [], [], []
+        #mean, std, min_val, max_val = self.population_fitness_analysis()
+        ans_mean = []
+        mean = self.population_fitness_analysis()
         ans_mean.append(mean)
-        ans_std.append(std)
-        ans_min.append(min_val)
-        ans_max.append(max_val)
+        #ans_std.append(std)
+        #ans_min.append(min_val)
+        #ans_max.append(max_val)        
+        number_converged = sum([x.fitness() == self.fitness_max for x in self.population])
+        
+        #sum([x.fitness() == self.fitness_max for x in self.population]) < self.params['population_size']
+        
         while self.get_fittest_individual().fitness() != self.fitness_max and n_generation < n_iter:
             #self.print_population()
+            
+            #print(number_converged)
+            
+            cur_flag = (self.get_fittest_individual().fitness() != self.fitness_max and n_generation < n_iter)
 
             n_generation += 1
 
@@ -154,21 +163,21 @@ class Population:
             #self.print_population()
 
             #select new generation
-            self.survival_selection(id1, id2)
+            self.survival_selection(id1, id2)            
 
-            mean, std, min_val, max_val = self.population_fitness_analysis()
-            ans_mean.append(mean)
-            ans_std.append(std)
-            ans_min.append(min_val)
-            ans_max.append(max_val)
-            
-
+            if cur_flag:
+                #mean, std, min_val, max_val = self.population_fitness_analysis()
+                mean = self.population_fitness_analysis()
+                ans_mean.append(mean)
+                #ans_std.append(std)
+                #ans_min.append(min_val)
+                #ans_max.append(max_val)
+                number_converged = np.sum([x.fitness() == self.fitness_max for x in self.population])            
 
         if verbose:
             #print('----------------')
             print('Generation number {}:\nBest individual has fitness {}.\nWorst individual has fitness {}.\nMean fitness is {}.\nStd is {}.'.format(n_generation, max_val, min_val, mean, std))
             #print('----------------')
 
-        number_converged = sum([x.fitness() == self.fitness_max for x in self.population])
-        converged = self.get_fittest_individual().fitness() == 0
-        return {"n_generations" : n_generation, "mean" : ans_mean, "std" : ans_std, "min" : ans_min, "max" : ans_max, "converged" : converged, "number_converged": number_converged}
+        converged = self.get_fittest_individual().fitness() == self.fitness_max
+        return {"n_generations" : n_generation, "mean" : ans_mean, "converged" : converged, "number_converged": number_converged}

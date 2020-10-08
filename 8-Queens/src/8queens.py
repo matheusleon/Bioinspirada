@@ -21,8 +21,8 @@ class Result:
         self.all_iter_converged = all_iter_converged
         self.all_number_converged = all_number_converged
 
-    def print_result(self):
-        print('----------------')
+    def print_result(self, number):
+        print('----------------', flush=True)
         print('Representation:')
         print('Crossover:', self.crossover)
         print('Mutation:', self.mutation)
@@ -40,11 +40,12 @@ class Result:
         print(self.individuals_converged)
         print('Fitness médio alcançado nas 30 execuções (média e desvio padrão)')
         print(self.mean_fitness)
-        plot_one_curve(self.all_means[-1], "Mean fitness", "")
-        print(self.all_iter_converged)
-        bar_graph(self.all_iter_converged, 'Iteration', '')
-        print(self.all_number_converged)
-        bar_graph(self.all_number_converged, 'Number of individuals who converged', '')
+        plot_one_curve(self.all_means[-1], "Mean fitness", "", str(number) + ' fitness')
+        #print(self.all_iter_converged)
+        bar_graph(self.all_iter_converged, 'Iteration', '', str(number) + ' iteration')
+        #print(self.all_number_converged)
+        bar_graph(self.all_number_converged, 'Number of individuals who converged', '', str(number) + 'individuals')
+        print('----------------', flush=True)
         
 
 def sort_cnt_converged(a):
@@ -63,33 +64,39 @@ def print_best_results(results):
     
     print('Combinação que mais convergiu nas execuções')
     x = sorted(results, key=sort_cnt_converged, reverse=True)
-    x[0].print_result()
+    x[0].print_result(1)
 
     print('\n\nCombinação que convergiu mais rapidamente em média')
     x = sorted(results, key=sort_iter_converged)
-    x[0].print_result()
+    x[0].print_result(2)
 
     print('\n\nCombinação que mais individuos convergiram na ultima iteração em média')
     x = sorted(results, key=sort_individuals_converged, reverse=True)
-    x[0].print_result()
+    x[0].print_result(3)
 
     print('\n\nCombinação que teve o maior fitness médio nas execuções')
     x = sorted(results, key=sort_mean_fitness, reverse=True)
-    x[0].print_result()
+    x[0].print_result(4)
 
 def main():
-    crossover_params = ['Cut and Crossfill']
-    mutation_params = ['swap']
-    parent_selection_params = ['Tournament Selection']
-    survival_selection_params = ['worst replacement']
+    crossover_params = ['Cut and Crossfill', 'Cyclic']
+    mutation_params = ['swap', 'shuffle', 'shuffle_subarray']
+    parent_selection_params = ['Tournament Selection', 'Roulette']
+    survival_selection_params = ['worst replacement', 'Generation']
     population_size = [100]
-    fitness_params = ['cnt_clash']
+    fitness_params = ['cnt_clash', 'inv_cnt_clash']
 
     results = []
     number_executions = 5
+    
+    cnt = 0
 
     for x in itertools.product(crossover_params, mutation_params, parent_selection_params, survival_selection_params, population_size, fitness_params):
         params = {'crossover': x[0], 'mutation': x[1], 'parent_selection': x[2], 'survival_selection': x[3], 'population_size': x[4], 'fitness': x[5]}
+        print(params)
+        
+        cnt += 1
+        print(cnt)
         
         cnt_converged = 0
         iter_converged = []
@@ -107,13 +114,13 @@ def main():
 
         a = cnt_converged / number_executions
         b = (np.mean(iter_converged), np.std(iter_converged))
-        c = np.mean(number_converged)
-        d = np.mean(fitness_mean[:][-1])
+        c = (np.mean(number_converged), np.std(number_converged))
+        d = (np.mean(fitness_mean[:][-1]), np.std(fitness_mean[:][-1]))
 
         results.append(Result(params['crossover'], params['mutation'], params['parent_selection'], params['survival_selection'], params['population_size'], params['fitness'], a, b, c, d, fitness_mean, iter_converged, number_converged))
 
     print('PRIMEIRA IMPLEMENTAÇÃO')
-    results[0].print_result()
+    results[0].print_result(0)
     print('\n\n')
 
     print_best_results(results)
