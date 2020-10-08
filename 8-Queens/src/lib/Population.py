@@ -74,6 +74,7 @@ class Population:
         iter_converged = -1
 
         ans_mean, ans_std, ans_min, ans_max = [], [], [], []
+        number_converged = []
         mean, std, min_val, max_val = self.population_fitness_analysis()
         ans_mean.append(mean)
         ans_std.append(std)
@@ -82,6 +83,7 @@ class Population:
         while self.get_worst_individual().fitness() != 0:
             if self.get_fittest_individual().fitness() == 0 and iter_converged == -1:
                 iter_converged = curr_iter
+                number_converged = len([x for x in self.population if x.fitness() == 65])
             #self.print_population()
 
             curr_iter += 1
@@ -114,7 +116,7 @@ class Population:
             print('Converged iteration {}:\nBest individual has fitness {}.\nWorst individual has fitness {}.\nMean fitness is {}.\nStd is {}.'.format(iter_converged, max_val, min_val, mean, std))
             #print('----------------')
 
-        number_converged = len([x for x in self.population if x.fitness() == 0])
+        
         converged = self.get_fittest_individual().fitness() == 0
         return {"iter_converged" : iter_converged, "mean" : ans_mean, "std" : ans_std, "min" : ans_min, "max" : ans_max, 
                 "converged" : converged, "number_converged": number_converged, "all_converged": curr_iter}
