@@ -5,15 +5,33 @@ from lib.helper import translate_to_bin, translate_to_perm
 class Individual:
     def __init__(self, fitness_method = None, x = None):
         self.fitness_method = fitness_method
+        self.cur_fitness = 0
         if x is None:
             pop_sample = [0, 1, 2, 3, 4, 5, 6, 7]
             random.shuffle(pop_sample)
             self.x = translate_to_bin(pop_sample)
+            self.update_fitness()
         else:
             self.x = translate_to_bin(x)
+            self.update_fitness()
+    
+    def update_fitness(self):
+        fitness_val = 0
+        perm = translate_to_perm(self.x)
+        for y1, x1 in enumerate(perm):
+            for y2, x2 in enumerate(perm):
+                if y1 != y2:
+                    dx = abs(x1 - x2)
+                    dy = abs(y1 - y2)
+                    if (x1 == x2 or y1 == y2 or dx == dy):
+                        fitness_val += 1
+        if self.fitness_method == 'cnt_clash':
+            self.cur_fitness = 8 * 8 - fitness_val + 1
+        elif self.fitness_method == 'inv_cnt_clash':
+            self.cur_fitness = 1 / (1 + fitness_val)
             
     def fitness(self):
-        fitness_val = 0
+        """fitness_val = 0
         perm = translate_to_perm(self.x)
         for y1, x1 in enumerate(perm):
             for y2, x2 in enumerate(perm):
@@ -25,7 +43,8 @@ class Individual:
         if self.fitness_method == 'cnt_clash':
             return 8 * 8 - fitness_val + 1
         elif self.fitness_method == 'inv_cnt_clash':
-            return 1 / (1 + fitness_val)
+            return 1 / (1 + fitness_val)"""
+        return self.cur_fitness
 
     def __lt__(self, other):
         return self.fitness() < other.fitness()
@@ -53,4 +72,5 @@ class Individual:
                 cur_perm = translate_to_perm(self.x)
                 random.shuffle(cur_perm[change[0] : change[1]])
                 self.x = translate_to_bin(cur_perm)
+        self.update_fitness()
         return self

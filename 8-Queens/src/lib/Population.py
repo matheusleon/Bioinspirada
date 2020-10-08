@@ -7,6 +7,7 @@ class Population:
     def __init__(self, params):
         self.params = params
         self.population = list(Individual(fitness_method = params['fitness']) for i in range(params['population_size']))
+        #self.population_fitness = [x.fitness() for x in self.population]
         if params['fitness'] == 'cnt_clash':
             self.fitness_max = 8 * 8 + 1
         elif params['fitness'] == 'inv_cnt_clash':
@@ -125,6 +126,7 @@ class Population:
         return self.population[0]
 
     def evolve(self, verbose = False):
+        #self.print_population()
         params = self.params
         n_generation = 0
         n_iter = 1000
@@ -140,10 +142,15 @@ class Population:
         
         #sum([x.fitness() == self.fitness_max for x in self.population]) < self.params['population_size']
         
+        cnt = 0
+        
         while self.get_fittest_individual().fitness() != self.fitness_max and n_generation < n_iter:
             #self.print_population()
             
             #print(number_converged)
+            
+            cnt += 1
+            #print(cnt)
             
             cur_flag = (self.get_fittest_individual().fitness() != self.fitness_max and n_generation < n_iter)
 

@@ -20,13 +20,15 @@ def translate_to_perm(bin_gene):
 def plot_one_curve(y, name, title, figname):
     #plt.clf()
     plt.plot(y, 'r')
+    plt.locator_params(axis='x', nbins=10)
     plt.xlabel('Iteration number')
     plt.ylabel(name)
     plt.title(title)
     plt.legend()
-    plt.axis([0, len(y), np.min(y) - 1, np.max(y) + 1])
+    diff = np.max(y) - np.min(y)
+    plt.axis([0, len(y), np.min(y) - diff, np.max(y) + diff])
     plt.savefig(figname)
-    #plt.close()
+    plt.close()
     
 def plot_all_curves(all_y, name, title, figname):
     #plt.clf()
@@ -38,7 +40,7 @@ def plot_all_curves(all_y, name, title, figname):
     plt.legend()
     plt.axis([0, len(y), np.min(y) - 1, np.max(y) + 1])
     plt.savefig(figname)
-    #plt.close()
+    plt.close()
     
 def bar_graph(y, name, title, figname):
     #plt.clf()
@@ -59,4 +61,4 @@ def bar_graph(y, name, title, figname):
             height = rect.get_height()
             plt.text(rect.get_x() + rect.get_width() / 2, height, round(v, 3), ha='center', va='bottom')
     plt.savefig(figname)
-    #plt.close()
+    plt.close()

@@ -40,7 +40,11 @@ class Result:
         print(self.individuals_converged)
         print('Fitness médio alcançado nas 30 execuções (média e desvio padrão)')
         print(self.mean_fitness)
-        plot_one_curve(self.all_means[-1], "Mean fitness", "", str(number) + ' fitness')
+        ids = 0
+        for i in range(len(self.all_means)):
+            if len(self.all_means[i]) > len(self.all_means[ids]):
+                ids = i
+        plot_one_curve(self.all_means[ids], "Mean fitness", "", str(number) + ' fitness')
         #print(self.all_iter_converged)
         bar_graph(self.all_iter_converged, 'Iteration', '', str(number) + ' iteration')
         #print(self.all_number_converged)
@@ -79,15 +83,15 @@ def print_best_results(results):
     x[0].print_result(4)
 
 def main():
-    crossover_params = ['Cut and Crossfill', 'Cyclic']
-    mutation_params = ['swap', 'shuffle', 'shuffle_subarray']
-    parent_selection_params = ['Tournament Selection', 'Roulette']
-    survival_selection_params = ['worst replacement', 'Generation']
+    crossover_params = ['Cut and Crossfill']
+    mutation_params = ['swap']
+    parent_selection_params = ['Tournament Selection']
+    survival_selection_params = ['Generation']
     population_size = [100]
-    fitness_params = ['cnt_clash', 'inv_cnt_clash']
+    fitness_params = ['inv_cnt_clash']
 
     results = []
-    number_executions = 5
+    number_executions = 30
     
     cnt = 0
 
