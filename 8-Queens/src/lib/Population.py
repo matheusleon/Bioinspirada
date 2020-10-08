@@ -63,20 +63,28 @@ class Population:
         self.population.sort(reverse=True)
         return self.population[0]
 
+    def get_worst_individual(self):
+        self.population.sort()
+        return self.population[0]
+
     def evolve(self, verbose = False):
         params = self.params
-        n_generation = 0
+        curr_iter = 0
         n_iter = 10000
+        iter_converged = -1
+
         ans_mean, ans_std, ans_min, ans_max = [], [], [], []
         mean, std, min_val, max_val = self.population_fitness_analysis()
         ans_mean.append(mean)
         ans_std.append(std)
         ans_min.append(min_val)
         ans_max.append(max_val)
-        while self.get_fittest_individual().fitness() != 0 and n_generation < n_iter:
+        while self.get_worst_individual().fitness() != 0:
+            if self.get_fittest_individual().fitness() == 0 and iter_converged == -1:
+                iter_converged = curr_iter
             #self.print_population()
 
-            n_generation += 1
+            curr_iter += 1
 
             # select the 2 fittest individuals 
             parents = self.parent_selection()
@@ -101,12 +109,12 @@ class Population:
             ans_min.append(min_val)
             ans_max.append(max_val)
 
-
         if verbose:
             #print('----------------')
-            print('Generation number {}:\nBest individual has fitness {}.\nWorst individual has fitness {}.\nMean fitness is {}.\nStd is {}.'.format(n_generation, max_val, min_val, mean, std))
+            print('Converged iteration {}:\nBest individual has fitness {}.\nWorst individual has fitness {}.\nMean fitness is {}.\nStd is {}.'.format(iter_converged, max_val, min_val, mean, std))
             #print('----------------')
 
         number_converged = len([x for x in self.population if x.fitness() == 0])
         converged = self.get_fittest_individual().fitness() == 0
-        return {"n_generations" : n_generation, "mean" : ans_mean, "std" : ans_std, "min" : ans_min, "max" : ans_max, "converged" : converged, "number_converged": number_converged}
+        return {"iter_converged" : iter_converged, "mean" : ans_mean, "std" : ans_std, "min" : ans_min, "max" : ans_max, 
+                "converged" : converged, "number_converged": number_converged, "all_converged": curr_iter}
