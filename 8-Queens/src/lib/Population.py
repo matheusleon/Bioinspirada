@@ -25,6 +25,7 @@ class Population:
             fitness_sum -= self.population[i].fitness()
             if fitness_sum <= 1e-5:
                 return (i, self.population[i])
+        return (self.params['population_size'] - 1, self.population[-1])
 
     # TODO: Melhor de 2 de 5 escolhidos aleatoriamente
     def parent_selection(self):
