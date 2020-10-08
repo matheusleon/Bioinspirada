@@ -68,6 +68,11 @@ class Population:
         n_generation = 0
         n_iter = 10000
         ans_mean, ans_std, ans_min, ans_max = [], [], [], []
+        mean, std, min_val, max_val = self.population_fitness_analysis()
+        ans_mean.append(mean)
+        ans_std.append(std)
+        ans_min.append(min_val)
+        ans_max.append(max_val)
         while self.get_fittest_individual().fitness() != 0 and n_generation < n_iter:
             #self.print_population()
 
@@ -91,28 +96,17 @@ class Population:
             self.survival_selection()
 
             mean, std, min_val, max_val = self.population_fitness_analysis()
-
             ans_mean.append(mean)
             ans_std.append(std)
             ans_min.append(min_val)
             ans_max.append(max_val)
 
-        print('\n\n----------------')
-        print('Representation:')
-        print('Crossover:', params['crossover'])
-        print('Mutation:', params['mutation'])
-        print('Parent Selection:', params['parent_selection'])
-        print('Survival Selection:', params['survival_selection'])
-        print('Population Size:', params['population_size'])
-        print('Fitness:', params['fitness'])
-        print('')
-        print('Results:')
-
-        mean, std, min_val, max_val = self.population_fitness_analysis()
 
         if verbose:
             #print('----------------')
             print('Generation number {}:\nBest individual has fitness {}.\nWorst individual has fitness {}.\nMean fitness is {}.\nStd is {}.'.format(n_generation, max_val, min_val, mean, std))
             #print('----------------')
 
-        return {"n_generations" : n_generation, "mean" : ans_mean, "std" : ans_std, "min" : ans_min, "max" : ans_max}
+        number_converged = len([x for x in self.population if x.fitness() == 0])
+        converged = self.get_fittest_individual().fitness() == 0
+        return {"n_generations" : n_generation, "mean" : ans_mean, "std" : ans_std, "min" : ans_min, "max" : ans_max, "converged" : converged, "number_converged": number_converged}
