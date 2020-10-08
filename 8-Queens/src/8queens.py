@@ -2,9 +2,10 @@ import random
 import numpy as np
 import itertools
 from lib.Population import Population
+from lib.helper import plot_one_curve, plot_all_curves, bar_graph
 
 class Result:
-    def __init__(self, crossover, mutation, parent_selection, survival_selection, population_size, fitness, a, b, c, d):
+    def __init__(self, crossover, mutation, parent_selection, survival_selection, population_size, fitness, a, b, c, d, all_means, all_iter_converged, all_number_converged):
         self.crossover = crossover
         self.mutation = mutation
         self.parent_selection = parent_selection
@@ -16,6 +17,9 @@ class Result:
         self.iter_converged = b 
         self.individuals_converged = c 
         self.mean_fitness = d
+        self.all_means = all_means
+        self.all_iter_converged = all_iter_converged
+        self.all_number_converged = all_number_converged
 
     def print_result(self):
         print('----------------')
@@ -36,6 +40,12 @@ class Result:
         print(self.individuals_converged)
         print('Fitness médio alcançado nas 30 execuções (média e desvio padrão)')
         print(self.mean_fitness)
+        plot_one_curve(self.all_means[-1], "Mean fitness", "")
+        print(self.all_iter_converged)
+        bar_graph(self.all_iter_converged, 'Iteration', '')
+        print(self.all_number_converged)
+        bar_graph(self.all_number_converged, 'Number of individuals who converged', '')
+        
 
 def sort_cnt_converged(a):
     return a.cnt_converged
@@ -69,7 +79,7 @@ def print_best_results(results):
 
 def main():
     crossover_params = ['Cut and Crossfill']
-    mutation_params = ['swap', 'shuffle']
+    mutation_params = ['swap']
     parent_selection_params = ['Tournament Selection']
     survival_selection_params = ['worst replacement']
     population_size = [100]
@@ -85,6 +95,7 @@ def main():
         iter_converged = []
         number_converged = []
         fitness_mean = []
+        all_means = []
         for i in range(number_executions):
             population = Population(params)
             ans = population.evolve(verbose = False)
@@ -99,7 +110,7 @@ def main():
         c = np.mean(number_converged)
         d = np.mean(fitness_mean[:][-1])
 
-        results.append(Result(params['crossover'], params['mutation'], params['parent_selection'], params['survival_selection'], params['population_size'], params['fitness'], a, b, c, d))
+        results.append(Result(params['crossover'], params['mutation'], params['parent_selection'], params['survival_selection'], params['population_size'], params['fitness'], a, b, c, d, fitness_mean, iter_converged, number_converged))
 
     print('PRIMEIRA IMPLEMENTAÇÃO')
     results[0].print_result()

@@ -1,3 +1,6 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
 def translate_to_bin(person):
     res = ""
     for gene in person:
@@ -13,3 +16,46 @@ def translate_to_perm(bin_gene):
         cur_gene = bin_gene[i:i+3]
         res.append(int(cur_gene, 2))
     return res
+    
+def plot_one_curve(y, name, title):
+    #plt.clf()
+    plt.plot(y, 'r')
+    plt.xlabel('Iteration number')
+    plt.ylabel(name)
+    plt.title(title)
+    plt.legend()
+    plt.axis([0, len(y), np.min(y) - 1, np.max(y) + 1])
+    plt.show()
+    
+def plot_all_curves(all_y, name, title):
+    #plt.clf()
+    for y in all_y:
+        plt.plot(y, 'r')
+    plt.xlabel('Iteration number')
+    plt.ylabel(name)
+    plt.title(title)
+    plt.legend()
+    plt.axis([0, len(y), np.min(y) - 1, np.max(y) + 1])
+    plt.show()
+    plt.clf()
+    
+def bar_graph(y, name, title):
+    #plt.clf()
+    fig, ax = plt.subplots()
+    arr = range(len(y))
+    y_pos = np.arange(len(y))
+    ax.bar(y_pos, y, align='center', width = 0.5, log=False)
+    ax.set_xticks(y_pos)
+    ax.set_xticklabels(arr)
+    ax.set_ylabel(name)
+    ax.set_xlabel('Execution')
+    plt.locator_params(axis='x', nbins=10)
+    
+    rects = ax.patches
+    
+    for rect, v in zip(rects, y):
+        if (v > 0):
+            height = rect.get_height()
+            plt.text(rect.get_x() + rect.get_width() / 2, height, round(v, 3), ha='center', va='bottom')
+    plt.show()
+    plt.clf()

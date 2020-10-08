@@ -14,16 +14,18 @@ class Individual:
             
     def fitness(self):
         fitness_val = 0
+        perm = translate_to_perm(self.x)
+        for y1, x1 in enumerate(perm):
+            for y2, x2 in enumerate(perm):
+                if y1 != y2:
+                    dx = abs(x1 - x2)
+                    dy = abs(y1 - y2)
+                    if (x1 == x2 or y1 == y2 or dx == dy):
+                        fitness_val += 1
         if self.fitness_method == 'cnt_clash':
-            perm = translate_to_perm(self.x)
-            for y1, x1 in enumerate(perm):
-                for y2, x2 in enumerate(perm):
-                    if y1 != y2:
-                        dx = abs(x1 - x2)
-                        dy = abs(y1 - y2)
-                        if (x1 == x2 or y1 == y2 or dx == dy):
-                            fitness_val += 1
-        return -fitness_val
+            return 8 * 8 - fitness_val + 1
+        elif self.fitness_method == 'inv_cnt_clash':
+            return 1 / (1 + fitness_val)
 
     def __lt__(self, other):
         return self.fitness() < other.fitness()
@@ -43,4 +45,12 @@ class Individual:
                 pop = translate_to_perm(self.x)
                 pop[change[0]], pop[change[1]] = pop[change[1]], pop[change[0]]
                 self.x = translate_to_bin(pop)
+            elif method == 'shuffle_subarray':
+                perm_or = [0, 1, 2, 3, 4, 5, 6, 7]
+                change = random.sample(perm_or, 2)
+                if change[0] > change[1]:
+                  change[0], change[1] = change[1], change[0]
+                cur_perm = translate_to_perm(self.x)
+                random.shuffle(cur_perm[change[0] : change[1]])
+                self.x = translate_to_bin(cur_perm)
         return self
