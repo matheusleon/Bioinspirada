@@ -26,3 +26,4 @@ class Individual:
     def mutate(self):
         self.sigma = [max(s * np.exp(self.t1 * np.random.normal(0, 1) + self.t2 * np.random.normal(0, 1)), self.eps) for s in self.sigma]
         self.x = [x + sigma * np.random.normal(0, 1) for (x, sigma) in zip(self.x, self.sigma)]
+        self.x = [min(15, max(x, -15)) for x in self.x]

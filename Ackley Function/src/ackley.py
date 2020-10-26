@@ -11,7 +11,7 @@ def main():
     #n_generation = 0
 
     ind = Individual()
-    
+
     print(ind.x[:5], ind.sigma[:5])
     ind.mutate()
     print(ind.x[:5], ind.sigma[:5])
