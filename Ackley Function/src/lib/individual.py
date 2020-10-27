@@ -7,9 +7,9 @@ class Individual:
         self.c1 = c1
         self.c2 = c2
         self.c3 = c3
-        self.sigma = [1 for i in range(n)]
-        self.t1 = 1 / np.sqrt(n)
-        self.t2 = 1 / np.sqrt(np.sqrt(n))
+        self.sigma = [random.uniform(0.1, 0.25) for i in range(n)]
+        self.t1 = 1 / np.sqrt(2 * n)
+        self.t2 = 1 / np.sqrt(np.sqrt(2 * n))
         self.eps = 1e-6
         if x == None:
             self.x = [random.uniform(-15.0, 15.0) for i in range(n)]
