@@ -15,6 +15,10 @@ class Population:
             print(individual.x)
 
     def parent_selection(self):
+        self.mi = random.randint(2, self.population_size)
+        self.lamb = 7 * self.mi
+        self.mi = 30
+        self.lamb = 200
         return list(random.sample(self.population, self.mi))
 
     def crossover_parent(self, p1, p2):
@@ -35,7 +39,7 @@ class Population:
     def survival_selection(self, parents, offspring):
         aux = []
         if self.params['survival_selection'] == 'mi+lambda':
-            aux = parents
+            aux = parents.copy()
             aux.extend(offspring)
         if self.params['survival_selection'] == 'mi,lambda':
             aux = offspring
@@ -46,11 +50,15 @@ class Population:
         self.population.sort()
         return self.population[0]
 
+    def get_worst_individual(self):
+        self.population.sort()
+        return self.population[-1]
+
     def evolve(self, verbose = False):
         
         params = self.params
         curr_iter = 0
-        while (self.get_fittest_individual().fitness != 0):
+        while self.get_fittest_individual().fitness != 0 and curr_iter < 10000:
             curr_iter += 1
 
             # select mi parents
@@ -69,6 +77,10 @@ class Population:
 
             new_pop.extend(self.survival_selection(parents, offspring_mutation))
 
-            print(curr_iter, len(self.population), self.get_fittest_individual().fitness())
+            #print(curr_iter, self.mi, len(self.population), self.get_fittest_individual().fitness(), self.get_worst_individual().fitness())
+
+            self.population = new_pop
+
+        print('CHEGOUUUU ', self.get_fittest_individual().fitness())
             
         return self

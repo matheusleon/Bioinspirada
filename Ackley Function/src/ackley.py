@@ -5,7 +5,7 @@ from lib.population import Population
 from lib.individual import Individual
 
 def main():
-    params = {'population_size': 100, 'crossover': 'mid_fixed_parents', 'mutation': 'individual_std', 'survival_selection': 'mi,lambda'}
+    params = {'population_size': 50, 'crossover': 'mid_fixed_parents', 'mutation': 'individual_std', 'survival_selection': 'mi,lambda'}
     population = Population(params)
     #population.print_population()
     n_generation = 0
