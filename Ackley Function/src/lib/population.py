@@ -7,7 +7,7 @@ class Population:
         self.params = params
         self.population_size = params['population_size']
         self.population = [Individual(mutation=params['mutation']) for i in range(params['population_size'])]
-        self.mi = 25
+        self.mi = 30
         self.lamb = 50
 
     def print_population(self):
@@ -77,7 +77,11 @@ class Population:
             
             if curr_iter % 20 == 0:
                 print(curr_iter, self.mi, len(self.population), stats['mean'])
-        
+            
+            if curr_iter % 300 == 0:
+                self.mi -= 1
+                self.lamb += 5
+
         print('CHEGOUUUU ', self.metrics()['best'])
             
         return self
