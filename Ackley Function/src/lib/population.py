@@ -6,17 +6,15 @@ class Population:
     def __init__(self, params):
         self.params = params
         self.population_size = params['population_size']
-        self.population = [Individual() for i in range(params['population_size'])]
-        self.mi = random.randint(2, self.population_size)
-        self.lamb = 7 * self.mi
+        self.population = [Individual(mutation=params['mutation']) for i in range(params['population_size'])]
+        self.mi = 25
+        self.lamb = 50
 
     def print_population(self):
         for individual in self.population:
             print(individual.x)
 
     def parent_selection(self):
-        self.mi = 20
-        self.lamb = 100
         return list(random.sample(self.population, self.mi))
 
     def crossover_parent(self, p1, p2):
@@ -25,7 +23,7 @@ class Population:
         if self.params['crossover'] == 'mid_fixed_parents':
             for i in range(n):
                 x_child.append((p1.x[i] + p2.x[i]) / 2.0)
-        return Individual(x = x_child)
+        return Individual(x = x_child, mutation = self.params['mutation'])
 
     def crossover(self, parents):
         children = []
@@ -46,22 +44,15 @@ class Population:
 
     def metrics(self):
         vals = [x.fitness() for x in self.population]
-        return {"best" : np.min(vals), "mean" : np.mean(vals)}
-
-    def stale(self, means):
-        if len(means) < 200:
-            return False
-        vals = means[-200:]
-        return np.std(vals) < 0.1
+        return {"best" : np.min(vals), "mean" : np.mean(vals), "std" : np.std(vals)}
 
     def evolve(self, verbose = False):
         
         params = self.params
         curr_iter = 0
         stats = self.metrics()
-        means = []
 
-        while stats['best'] != 0 and curr_iter < 1000:
+        while stats['best'] != 0 and curr_iter < 10000:
             curr_iter += 1
 
             # select mi parents
@@ -71,7 +62,7 @@ class Population:
             offspring_crossover = self.crossover(parents)
             
             # possibly mutate children
-            offspring_mutation = [x.mutate(params['mutation']) for x in offspring_crossover]
+            offspring_mutation = [(x.mutate(params['mutation']) if np.random.uniform(0, 1) < self.params['mutation_prob'] else x) for x in offspring_crossover]
 
             new_pop = []
             for ind in self.population:
@@ -83,17 +74,10 @@ class Population:
             self.population = new_pop
 
             stats = self.metrics()
-            means.append(stats['mean'])
-
-            print(curr_iter, self.mi, len(self.population), stats['mean'])
-
-            if self.stale(means):
-                print('population is stuck in local minimum')
-                for ind in self.population:
-                    ind.sigma = [random.uniform(0.1, 0.25) for sig in ind.sigma]
-                    means.clear()
-
-
+            
+            if curr_iter % 20 == 0:
+                print(curr_iter, self.mi, len(self.population), stats['mean'])
+        
         print('CHEGOUUUU ', self.metrics()['best'])
             
         return self
