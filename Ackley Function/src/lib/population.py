@@ -2,6 +2,8 @@ import random
 import numpy as np
 from .individual import Individual
 
+#pop 500 mi = 30 lamb 50
+#pop 1000 mi 30 lamb 100
 class Population:
     def __init__(self, params):
         self.params = params
@@ -50,6 +52,7 @@ class Population:
         
         params = self.params
         curr_iter = 0
+        next_swap = 1000
         stats = self.metrics()
 
         while stats['best'] != 0 and curr_iter < 10000:
@@ -78,10 +81,22 @@ class Population:
             if curr_iter % 20 == 0:
                 print(curr_iter, self.mi, len(self.population), stats['mean'])
             
-            if curr_iter % 300 == 0:
-                self.mi -= 1
-                self.lamb += 5
-
+            if curr_iter == next_swap:
+                if self.params['survival_selection'] == 'mi,lambda':
+                    self.params['survival_selection'] = 'mi+lambda'
+                    self.mi = 30
+                    self.lamb = 50
+                    next_swap = curr_iter + 150
+                    for ind in self.population:
+                        ind.sigma = self.sigma = random.uniform(0.1, 0.25)
+                elif self.params['survival_selection'] == 'mi+lambda':
+                    self.params['survival_selection'] = 'mi,lambda'
+                    self.mi = 15
+                    self.lamb = 80
+                    next_swap = curr_iter + 50
+                    for ind in self.population:
+                        ind.sigma = self.sigma = random.uniform(0.1, 0.25)
+        
         print('CHEGOUUUU ', self.metrics()['best'])
             
         return self

@@ -10,7 +10,7 @@ class Individual:
         if mutation == 'individual_std':
             self.sigma = [random.uniform(0.1, 0.25) for i in range(n)]
         elif mutation == 'global_std':
-            self.sigma = random.uniform(0.25, 0.5)
+            self.sigma = random.uniform(0.1, 0.25)
         self.t1 = 1 / np.sqrt(2 * n)
         self.t2 = 1 / np.sqrt(np.sqrt(2 * n))
         self.eps = 1e-2
