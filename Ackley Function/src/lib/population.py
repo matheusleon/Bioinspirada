@@ -1,13 +1,14 @@
 import random
 import numpy as np
 from .individual import Individual
+import concurrent.futures
 
 class Population:
     def __init__(self, params):
         self.params = params
         self.population_size = params['population_size']
         self.population = [Individual(mutation=params['mutation']) for i in range(params['population_size'])]
-        self.mi = 30
+        self.mi = 10
         self.lamb = 50
 
     def print_population(self):
@@ -20,16 +21,20 @@ class Population:
     def crossover_parent(self, p1, p2):
         n = len(p1.x)
         x_child = []
+        nxt_sigma = []
         if self.params['crossover'] == 'mid_fixed_parents':
             for i in range(n):
                 x_child.append((p1.x[i] + p2.x[i]) / 2.0)
-        return Individual(x = x_child, mutation = self.params['mutation'])
+                nxt_sigma.append((p1.sigma[i] + p2.sigma[i]) / 2.0)
+        return Individual(x = x_child, sigma = nxt_sigma, mutation = self.params['mutation'])
+        
+    def one_child(self, parents):
+        p1, p2 = random.sample(parents, 2)
+        return self.crossover_parent(p1, p2)
 
     def crossover(self, parents):
-        children = []
-        while len(children) != self.lamb:
-            p1, p2 = random.sample(parents, 2)
-            children.append(self.crossover_parent(p1, p2))
+        children_submit = [concurrent.futures.ThreadPoolExecutor(max_workers=8).submit(self.one_child, parents) for x in range(0, self.lamb)]
+        children = [cs.result() for cs in children_submit]
         return children
 
     def survival_selection(self, parents, offspring):
@@ -43,17 +48,27 @@ class Population:
         return aux[:len(parents)]
 
     def metrics(self):
-        vals = [x.fitness() for x in self.population]
-        return {"best" : np.min(vals), "mean" : np.mean(vals), "std" : np.std(vals)}
+        vals = [(x.fitness(), x.sigma) for x in self.population]
+        true_vals = [x.fitness() for x in self.population] 
+        return {"best" : min(vals), "mean" : np.mean(true_vals), "std" : np.std(true_vals)}
 
     def evolve(self, verbose = False):
         
         params = self.params
         curr_iter = 0
         stats = self.metrics()
+        
+        print(stats)
 
         while stats['best'] != 0 and curr_iter < 10000:
             curr_iter += 1
+            
+            if curr_iter % 2000 == 1000:
+                self.params['survival_selection'] = 'mi+lambda'
+                self.population = [x.update_sigma(2.0 / 3) for x in self.population]
+            elif curr_iter % 2000 == 0:
+                self.params['survival_selection'] = 'mi,lambda'
+                self.population = [x.update_sigma(1.5) for x in self.population]
 
             # select mi parents
             parents = self.parent_selection()
@@ -73,14 +88,14 @@ class Population:
             
             self.population = new_pop
 
-            stats = self.metrics()
             
-            if curr_iter % 20 == 0:
-                print(curr_iter, self.mi, len(self.population), stats['mean'])
+            if curr_iter % 50 == 0:
+                stats = self.metrics()
+                print(curr_iter, self.mi, len(self.population), stats['best'], self.params['survival_selection'])
             
-            if curr_iter % 300 == 0:
-                self.mi -= 1
-                self.lamb += 5
+            #if curr_iter % 300 == 0:
+                #self.mi -= 1
+                #self.lamb += 5
 
         print('CHEGOUUUU ', self.metrics()['best'])
             

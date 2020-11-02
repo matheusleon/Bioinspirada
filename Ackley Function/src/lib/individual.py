@@ -2,15 +2,21 @@ import random
 import numpy as np
 
 class Individual:
-    def __init__(self, mutation, n = 30, c1 = 20, c2 = 0.2, c3 = 2*np.pi, x = None):
+    def __init__(self, mutation, n = 30, c1 = 20, c2 = 0.2, c3 = 2*np.pi, sigma = None, x = None):
         self.n = n
         self.c1 = c1
         self.c2 = c2
         self.c3 = c3
         if mutation == 'individual_std':
-            self.sigma = [random.uniform(0.1, 0.25) for i in range(n)]
+            if sigma == None:
+                self.sigma = [random.uniform(0.1, 0.25) for i in range(n)]
+            else:
+                self.sigma = sigma
         elif mutation == 'global_std':
-            self.sigma = random.uniform(0.25, 0.5)
+            if sigma == None:
+                self.sigma = random.uniform(0.25, 0.5)
+            else:
+                self.sigma = sigma
         self.t1 = 1 / np.sqrt(2 * n)
         self.t2 = 1 / np.sqrt(np.sqrt(2 * n))
         self.eps = 1e-2
@@ -32,11 +38,15 @@ class Individual:
     def mutate(self, method, f = False):
         if method == 'individual_std':
             self.sigma = [max(s * np.exp(self.t1 * np.random.normal(0, 1) + self.t2 * np.random.normal(0, 1)), self.eps) for s in self.sigma]
-            self.x = [x + sigma * np.random.normal(0, 1) for (x, sigma) in zip(self.x, self.sigma)]
+            self.x = [x + np.random.normal(0, sigma) for (x, sigma) in zip(self.x, self.sigma)]
             self.x = [min(15, max(x, -15)) for x in self.x]
         elif method == 'global_std':
             self.sigma = max(self.eps, self.sigma * np.exp(self.t1 * np.random.normal(0, 1)))
             self.x = [x + self.sigma * np.random.normal(0, 1) for x in self.x]
             self.x = [min(15, max(x, -15)) for x in self.x]
 
+        return self
+        
+    def update_sigma(self, f):
+        self.sigma = [max(s * f, self.eps) for s in self.sigma]
         return self
