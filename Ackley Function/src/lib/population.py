@@ -1,6 +1,8 @@
+
 import random
 import numpy as np
 from .individual import Individual
+from .helper import plot_result
 
 #pop 500 mi = 30 lamb 50
 #pop 1000 mi 30 lamb 100
@@ -54,6 +56,12 @@ class Population:
         curr_iter = 0
         next_swap = 1000
         stats = self.metrics()
+        
+        all_bests, all_means, all_stds = [], [], []
+        
+        all_bests.append(stats['best'])
+        all_means.append(stats['mean'])
+        all_stds.append(stats['std'])
 
         while stats['best'] != 0 and curr_iter < 10000:
             curr_iter += 1
@@ -78,25 +86,35 @@ class Population:
 
             stats = self.metrics()
             
+            all_bests.append(stats['best'])
+            all_means.append(stats['mean'])
+            all_stds.append(stats['std'])
+            
             if curr_iter % 20 == 0:
-                print(curr_iter, self.mi, len(self.population), stats['mean'])
+                print(curr_iter, self.mi, len(self.population), stats['best'])
             
             if curr_iter == next_swap:
                 if self.params['survival_selection'] == 'mi,lambda':
                     self.params['survival_selection'] = 'mi+lambda'
                     self.mi = 30
                     self.lamb = 50
-                    next_swap = curr_iter + 150
-                    for ind in self.population:
-                        ind.sigma = self.sigma = random.uniform(0.1, 0.25)
+                    next_swap = curr_iter + 400
+                    #for ind in self.population:
+                        #ind.sigma = self.sigma = random.uniform(0.1, 0.25)
+                    if self.params['mutation'] == 'individual_std':
+                        self.population = [x.update_sigma(2.0 / 3) for x in self.population]
                 elif self.params['survival_selection'] == 'mi+lambda':
                     self.params['survival_selection'] = 'mi,lambda'
                     self.mi = 15
                     self.lamb = 80
-                    next_swap = curr_iter + 50
-                    for ind in self.population:
-                        ind.sigma = self.sigma = random.uniform(0.1, 0.25)
+                    next_swap = curr_iter + 600
+                    #for ind in self.population:
+                        #ind.sigma = self.sigma = random.uniform(0.1, 0.25)
+                    if self.params['mutation'] == 'individual_std':
+                        self.population = [x.update_sigma(1.5) for x in self.population]
         
         print('CHEGOUUUU ', self.metrics()['best'])
+        plot_result(all_bests, all_means, all_stds, 'ackley result')
+        
             
         return self

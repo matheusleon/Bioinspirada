@@ -40,3 +40,7 @@ class Individual:
             self.x = [min(15, max(x, -15)) for x in self.x]
 
         return self
+        
+    def update_sigma(self, f):
+        self.sigma = [max(s * f, self.eps) for s in self.sigma]
+        return self
